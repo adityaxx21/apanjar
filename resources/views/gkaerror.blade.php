@@ -79,7 +79,7 @@
         });
     </script>
 
-    <form action="halaman_admin/3" method="post" enctype="multipart/form-data">
+    <form action="halaman_admin/4" method="post" enctype="multipart/form-data">
     @csrf
     @method("DELETE")
     <button type="submit"> Coba Hapus </button>

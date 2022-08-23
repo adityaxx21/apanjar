@@ -53,23 +53,25 @@ class HalamanAdmin_Controller extends Controller
             'user_id' => 'required',
             'jenis_id' => 'required',
         ]);
-        
+
         $post = Item::create($validatedData);
         
         if($request->hasfile('gambar'))
          {
-            foreach($request->file('gambar') as $file)
+            foreach($request->file('gambar') as $key=>$file)
             {
-                $name = time().rand(1,100).'.'.$file->extension();
-                $file->move(public_path('gambar'), $name);  
-                Gambar_item::create([
-                    'gambar'=>$name,
-                    'item_id' =>Item::latest()->value('id')
-                ]); 
+                if ($key < 4) {
+                    $name = time().rand(1,100).'.'.$file->extension();
+                    $file->move(public_path('gambar'), $name);  
+                    Gambar_item::create([
+                        'gambar'=>$name,
+                        'item_id' =>Item::latest()->value('id')
+                    ]); 
+                }
             }
          }
 
-         return redirect('/halaman_admin')
+         return redirect()->back()
          ->with('success', 'Barang berhasil dihapus');
     }
 
@@ -110,23 +112,24 @@ class HalamanAdmin_Controller extends Controller
             'deskripsi' => 'required',
             'jenis_id' => 'required',
         ]);
-
-        $files = [];
-        $delete_id = $request->delete_id;
-        foreach ($delete_id as $key => $value) {
-            Gambar_item::where('id',$value)->delete();
-        }
+        // $delete_id = $request->delete_id;
+        // foreach ($delete_id as $key => $value) {
+        //     Gambar_item::where('id',$value)->delete();
+        // }
         $post = Item::where('id',$id)->update($validatedData);
         if($request->hasfile('gambar'))
          {
             foreach($request->file('gambar') as $file)
             {
-                $name = time().rand(1,100).'.'.$file->extension();
-                $file->move(public_path('gambar'), $name);  
-                Gambar_item::create([
-                    'gambar'=>$name,
-                    'item_id' =>$id
-                ]); 
+                if (Gambar_item::where('item_id',$id)->count() < 4) {
+                    $name = time().rand(1,100).'.'.$file->extension();
+                    $file->move(public_path('gambar'), $name);  
+                    Gambar_item::create([
+                        'gambar'=>$name,
+                        'item_id' =>$id
+                    ]); 
+                }
+
             }
          }
         
@@ -172,5 +175,11 @@ class HalamanAdmin_Controller extends Controller
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
         return $randomString;
+    }
+
+    public function delete_image($id)
+    {
+        Gambar_item::where('id',$id)->delete();
+        return redirect()->back();
     }
 }
